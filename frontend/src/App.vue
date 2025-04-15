@@ -8,9 +8,9 @@
         background-color="#545c64"
         text-color="#fff"
         active-text-color="#ffd04b"
-        default-active="/"
+        :default-active="activeIndex"
     >
-      <el-menu-item index="/" class="logo-item">
+      <el-menu-item class="logo-item">
         <span class="site-title">微课视频</span>
       </el-menu-item>
 
@@ -26,10 +26,13 @@
 </template>
 
 <script setup>
-import {RouterView} from 'vue-router'
+import {computed} from "vue";
+import {RouterView, useRoute} from 'vue-router'
 import {ElMenu, ElMenuItem} from 'element-plus'
 
-// 不需要额外的逻辑，路由由vue-router自动处理
+const route = useRoute()
+const activeIndex = computed(() => route.path)
+
 </script>
 
 <style lang="scss">
