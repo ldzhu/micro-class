@@ -1,11 +1,9 @@
-const express = require('express');
-const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const express = require('express');
+const cors = require('cors');
 
 const {UPLOAD_DIR, DATABASE_FILE} = require('../config/paths');
-// 引入数据库配置
-const db = require('./db/database');
 
 const videosRouter = require('./routes/videos');
 const commentsRouter = require('./routes/comments');
@@ -39,7 +37,7 @@ const history = require('connect-history-api-fallback')
 app.use(history());
 
 const PUBLIC_DIR = path.join(__dirname, '../public');
-const INDEX_HTML = path.join(PUBLIC_DIR, 'index.html');
+// const INDEX_HTML = path.join(PUBLIC_DIR, 'index.html');
 
 app.use(express.static(PUBLIC_DIR, {
   maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0',
@@ -52,7 +50,7 @@ app.use(express.static(PUBLIC_DIR, {
 }));
 
 // 错误处理中间件
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   console.error(err.stack);
   res.status(500).json({ error: '服务器内部错误' });
 });

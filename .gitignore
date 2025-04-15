@@ -19,3 +19,5 @@ backend/node_modules/
 backend/data/
 backend/public/
 backend/uploads/
+
+qodana.yaml
