@@ -98,7 +98,7 @@ const fetchData = async () => {
       return;
     }
 
-    videoUrl.value = new URL(videoRes.data.file_path, import.meta.env.VITE_API_BASE).href;
+    videoUrl.value = new URL(`/uploads/${videoRes.data?.file_path}`, import.meta.env.VITE_API_BASE).href;
     rating.value = videoRes.data.average_rating;
     ratingCount.value = videoRes.data.rating_count;
     viewCount.value = videoRes.data.view_count;

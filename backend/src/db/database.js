@@ -48,7 +48,7 @@ db.serialize(() => {
       )
   `);
 
-  console.log('数据库表结构初始化完成');
+  console.log('The database table schema is initialized');
 });
 
 module.exports = db;

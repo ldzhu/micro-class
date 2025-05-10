@@ -15,13 +15,13 @@
 
     <el-dialog
         v-model="dialogVisible"
-        title="上传新视频"
+        :title="isEditMode ? '更新视频版本': '上传新视频'"
         width="600px"
         @closed="resetForm"
     >
       <el-form :model="form" label-width="80px">
         <el-form-item label="视频标题" required>
-          <el-input v-model="form.title" placeholder="请输入视频标题"/>
+          <el-input v-model="form.title" placeholder="请输入视频标题" :disabled="isEditMode"/>
         </el-form-item>
 
         <el-form-item label="视频描述">
@@ -86,7 +86,7 @@
             @click="submitForm"
             :loading="isSubmitting"
         >
-          确认上传
+          {{ isEditMode ? '确认更新' : '确认上传' }}
         </el-button>
       </template>
     </el-dialog>
@@ -97,8 +97,7 @@
 
     <!-- 视频列表 -->
     <el-card class="video-list">
-      <el-table :data="videos" height="100%">
-        <el-table-column type="index" width="80"/>
+      <el-table :data="videos">
         <el-table-column prop="title" label="标题"/>
         <el-table-column label="分类">
           <template #default="{ row }">
@@ -108,8 +107,15 @@
         <el-table-column prop="created_at" sortable label="上传时间"/>
         <el-table-column prop="view_count" sortable label="播放次数"/>
         <el-table-column prop="average_rating" sortable label="评分"/>
-        <el-table-column label="操作" width="120">
+        <el-table-column label="操作" width="180">
           <template #default="{ row }">
+            <el-button
+                type="danger"
+                size="small"
+                @click="updateVideo(row)"
+            >
+              更新版本
+            </el-button>
             <el-button
                 type="danger"
                 size="small"
@@ -120,6 +126,15 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination">
+        <el-pagination
+            :current-page="currentPage"
+            :page-size="pageSize"
+            layout="prev, pager, next"
+            :total="total"
+            @current-change="handlePageChange"
+        />
+      </div>
     </el-card>
   </div>
 </template>
@@ -134,6 +149,8 @@ const categories = ref([])
 const videos = ref([])
 const isSubmitting = ref(false)
 const dialogVisible = ref(false)
+const isEditMode = ref(false)
+const currentVideo = ref(null)
 // 表单数据
 const form = ref({
   title: '',
@@ -141,6 +158,10 @@ const form = ref({
   category_id: null,
   file: null
 })
+// 分页相关变量
+const currentPage = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
 
 // 初始化数据
 onMounted(async () => {
@@ -161,11 +182,21 @@ const fetchCategories = async () => {
 // 获取视频列表
 const fetchVideos = async () => {
   try {
-    const res = await api.getVideos()
+    const res = await api.getVideos({
+      page: currentPage.value,
+      pageSize: pageSize.value
+    })
     videos.value = res.data
+    total.value = res.total
   } catch (error) {
     ElMessage.error('获取视频列表失败')
   }
+}
+
+// 处理分页变化
+const handlePageChange = (newPage) => {
+  currentPage.value = newPage
+  fetchVideos()
 }
 
 // 添加新分类
@@ -192,10 +223,17 @@ const submitForm = async () => {
   formData.append('video', form.value.file)
 
   try {
-    await api.uploadVideo(formData, {
-      headers: {'Content-Type': 'multipart/form-data'}
-    })
-    ElMessage.success('视频上传成功')
+    if (isEditMode.value) {
+      await api.updateVideo(currentVideo.value.id, formData, {
+        headers: {'Content-Type': 'multipart/form-data'}
+      })
+    } else {
+      await api.uploadVideo(formData, {
+        headers: {'Content-Type': 'multipart/form-data'}
+      })
+    }
+
+    ElMessage.success(`视频${isEditMode.value ? '更新' : '上传'}成功`)
     resetForm()
     await fetchVideos()
   } catch (error) {
@@ -204,6 +242,22 @@ const submitForm = async () => {
     isSubmitting.value = false
     dialogVisible.value = false
   }
+}
+
+// 更新视频
+const updateVideo = async (video) => {
+  isEditMode.value = true
+  dialogVisible.value = true
+  currentVideo.value = video
+
+  // 填充现有数据
+  form.value = {
+    title: video.title,
+    description: video.description,
+    category_id: video.category_id,
+    file: null
+  }
+
 }
 
 // 删除视频
@@ -230,7 +284,7 @@ const handleFileChange = file => form.value.file = file.raw;
 
 // 表单验证
 const validateForm = () => {
-  if (!form.value.title.trim()) {
+  if (!form.value.title?.trim()) {
     ElMessage.warning('请输入视频标题')
     return false
   }
@@ -243,6 +297,7 @@ const validateForm = () => {
 
 // 重置表单
 const resetForm = () => {
+  isEditMode.value = false
   form.value = {
     title: '',
     description: '',
@@ -286,7 +341,6 @@ const getCategoryName = (categoryId) => {
 
   .video-list {
     margin-top: 20px;
-    height: calc(100vh - 220px);
     display: flex;
     flex-direction: column;
 
@@ -294,9 +348,12 @@ const getCategoryName = (categoryId) => {
       height: 100%;
     }
 
+    .pagination {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+    }
   }
-
 }
-
 
 </style>

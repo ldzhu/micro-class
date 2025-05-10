@@ -1,5 +1,6 @@
 {
   "name": "video-backend",
+  "type": "commonjs",
   "version": "1.0.0",
   "dependencies": {
     "connect-history-api-fallback": "^2.0.0",

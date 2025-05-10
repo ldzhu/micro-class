@@ -11,9 +11,10 @@ instance.interceptors.response.use(response => {
 
 export default {
   // 视频相关
-  getVideos: () => instance.get('/videos'),
+  getVideos: (params) => instance.get('/videos', {params}),
   getVideo: (id) => instance.get(`/videos/${id}`),
   uploadVideo: (data) => instance.post('/videos/upload', data),
+  updateVideo: (id, data) => instance.put(`/videos/${id}`, data),
   deleteVideo: (id) => instance.delete(`/videos/${id}`),
   updateView: (id) => instance.post(`/videos/${id}/view`),
 
@@ -26,7 +27,5 @@ export default {
   createCategory: (name) => instance.post('/categories', { name }),
 
   // 评分相关
-  submitRating: (data) => instance.post('/ratings', data),
-  getAverageRating: (videoId) => instance.get('/ratings/average', { params: { video_id: videoId } }),
-  getRatingDistribution: (videoId) => instance.get('/ratings/distribution', { params: { video_id: videoId } })
+  submitRating: (data) => instance.post('/ratings', data)
 }

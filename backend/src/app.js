@@ -50,8 +50,7 @@ app.use(express.static(PUBLIC_DIR, {
 }));
 
 // 错误处理中间件
-app.use((err, req, res) => {
-  console.error(err.stack);
+app.use((req,res) => {
   res.status(500).json({ error: '服务器内部错误' });
 });
 

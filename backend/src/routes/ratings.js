@@ -20,18 +20,4 @@ router.post('/', (req, res) => {
   );
 });
 
-// 获取平均分
-router.get('/average', (req, res) => {
-  const { video_id } = req.query;
-
-  db.get(
-    `SELECT AVG(rating) as average FROM ratings WHERE video_id = ?`,
-    [video_id],
-    (err, row) => {
-      if (err) return res.status(500).json(err);
-      res.json({success: true, data: row.average || 0 });
-    }
-  );
-});
-
 module.exports = router;
