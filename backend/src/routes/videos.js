@@ -116,7 +116,7 @@ router.post('/upload', upload.single('video'), (req, res) => {
 router.put('/:id', upload.single('video'), (req, res) => {
   const {id} = req.params;
   const {title, description, category_id} = req.body;
-  const filePath = req.file?.path
+  const filePath = req.file.filename
 
   // 获取旧文件信息
   db.get('SELECT * FROM videos WHERE id = ?', [id], (err, oldVideo) => {

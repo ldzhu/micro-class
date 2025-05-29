@@ -5,6 +5,7 @@ Thumbs.db
 # 编辑器/IDE
 .vscode/
 .idea/
+.lingma/
 
 # 日志文件
 *.log
@@ -19,4 +20,5 @@ backend/node_modules/
 backend/data/
 backend/public/
 backend/uploads/
+
 
